@@ -82,7 +82,7 @@ public class PakStanislavCourseServiceImpl implements PakStanislavCourseService 
             BigDecimal minPrice,
             BigDecimal maxPrice
     ) {
-        Specification<PakStanislavCourse> specification = Specification.where(null);
+        Specification<PakStanislavCourse> specification = (root, query, cb) -> cb.conjunction();
 
         if (keyword != null && !keyword.isBlank()) {
             String normalizedKeyword = "%" + keyword.toLowerCase(Locale.ROOT) + "%";
