@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,7 @@ public class PakStanislavCourseController {
     private final PakStanislavCourseService courseService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','STUDENT')")
     public ResponseEntity<Page<PakStanislavCourseDto>> getCourses(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -57,11 +59,13 @@ public class PakStanislavCourseController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','STUDENT')")
     public ResponseEntity<PakStanislavCourseDto> getCourseById(@PathVariable Long id) {
         return ResponseEntity.ok(courseService.getCourseById(id));
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     public ResponseEntity<PakStanislavCourseDto> createCourse(
             @Valid @RequestBody PakStanislavCourseRequestDto requestDto
     ) {
@@ -69,6 +73,7 @@ public class PakStanislavCourseController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     public ResponseEntity<PakStanislavCourseDto> updateCourse(
             @PathVariable Long id,
             @Valid @RequestBody PakStanislavCourseRequestDto requestDto
@@ -77,6 +82,7 @@ public class PakStanislavCourseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
         return ResponseEntity.noContent().build();
