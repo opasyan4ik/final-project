@@ -14,6 +14,7 @@ import com.example.finalproject.repository.PakStanislavUserRepository;
 import com.example.finalproject.security.PakStanislavJwtUtil;
 import com.example.finalproject.service.PakStanislavAuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class PakStanislavAuthServiceImpl implements PakStanislavAuthService {
 
@@ -38,7 +40,9 @@ public class PakStanislavAuthServiceImpl implements PakStanislavAuthService {
     @Override
     @Transactional
     public PakStanislavUserDto register(PakStanislavRegisterRequestDto requestDto) {
+        log.info("Registration attempt for email={}", requestDto.getEmail());
         if (userRepository.existsByEmail(requestDto.getEmail())) {
+            log.warn("Registration rejected: email already exists email={}", requestDto.getEmail());
             throw new PakStanislavBadRequestException("User with this email already exists");
         }
 
@@ -54,12 +58,15 @@ public class PakStanislavAuthServiceImpl implements PakStanislavAuthService {
                 .build();
 
         PakStanislavUser savedUser = userRepository.save(user);
+        log.info("User registered successfully id={} email={} role={}",
+                savedUser.getId(), savedUser.getEmail(), requestDto.getRole());
         return userMapper.toDto(savedUser);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PakStanislavAuthResponseDto login(PakStanislavLoginRequestDto requestDto) {
+        log.info("Login attempt for email={}", requestDto.getEmail());
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(requestDto.getEmail(), requestDto.getPassword())
         );
@@ -69,6 +76,7 @@ public class PakStanislavAuthServiceImpl implements PakStanislavAuthService {
                 .orElseThrow(() -> new PakStanislavBadRequestException("User is not found"));
 
         String token = jwtUtil.generateToken(userDetails);
+        log.info("Login successful for userId={} email={}", user.getId(), user.getEmail());
         return PakStanislavAuthResponseDto.builder()
                 .token(token)
                 .tokenType("Bearer")

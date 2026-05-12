@@ -2,6 +2,7 @@ package com.example.finalproject.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestControllerAdvice
+@Slf4j
 public class PakStanislavGlobalExceptionHandler {
 
     @ExceptionHandler(PakStanislavResourceNotFoundException.class)
@@ -22,6 +24,7 @@ public class PakStanislavGlobalExceptionHandler {
             PakStanislavResourceNotFoundException ex,
             HttpServletRequest request
     ) {
+        log.warn("Resource not found: path={} message={}", request.getRequestURI(), ex.getMessage());
         return buildResponse(
                 HttpStatus.NOT_FOUND,
                 ex.getMessage(),
@@ -35,6 +38,7 @@ public class PakStanislavGlobalExceptionHandler {
             PakStanislavBadRequestException ex,
             HttpServletRequest request
     ) {
+        log.warn("Bad request: path={} message={}", request.getRequestURI(), ex.getMessage());
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
                 ex.getMessage(),
@@ -59,6 +63,7 @@ public class PakStanislavGlobalExceptionHandler {
                 })
                 .toList();
 
+        log.warn("Validation failed: path={} errors={}", request.getRequestURI(), details);
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
                 "Validation failed",
@@ -77,6 +82,7 @@ public class PakStanislavGlobalExceptionHandler {
                 .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
                 .toList();
 
+        log.warn("Constraint violation: path={} errors={}", request.getRequestURI(), details);
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
                 "Constraint violation",
@@ -90,6 +96,7 @@ public class PakStanislavGlobalExceptionHandler {
             DataIntegrityViolationException ex,
             HttpServletRequest request
     ) {
+        log.error("Data integrity violation: path={} message={}", request.getRequestURI(), ex.getMessage());
         return buildResponse(
                 HttpStatus.CONFLICT,
                 "Data integrity violation",
@@ -103,6 +110,7 @@ public class PakStanislavGlobalExceptionHandler {
             AuthenticationException ex,
             HttpServletRequest request
     ) {
+        log.warn("Authentication failed: path={} reason={}", request.getRequestURI(), ex.getMessage());
         return buildResponse(
                 HttpStatus.UNAUTHORIZED,
                 "Invalid email or password",
@@ -116,6 +124,7 @@ public class PakStanislavGlobalExceptionHandler {
             Exception ex,
             HttpServletRequest request
     ) {
+        log.error("Unexpected server error: path={} message={}", request.getRequestURI(), ex.getMessage(), ex);
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Unexpected server error",

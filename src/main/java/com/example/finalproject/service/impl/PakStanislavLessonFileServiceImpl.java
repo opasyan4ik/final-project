@@ -8,6 +8,7 @@ import com.example.finalproject.mapper.PakStanislavLessonMapper;
 import com.example.finalproject.repository.PakStanislavLessonRepository;
 import com.example.finalproject.service.PakStanislavLessonFileService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -25,6 +26,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class PakStanislavLessonFileServiceImpl implements PakStanislavLessonFileService {
 
@@ -37,7 +39,9 @@ public class PakStanislavLessonFileServiceImpl implements PakStanislavLessonFile
     @Override
     @Transactional
     public PakStanislavLessonDto uploadLessonFile(Long lessonId, MultipartFile file) {
+        log.info("Upload file request for lessonId={}", lessonId);
         if (file == null || file.isEmpty()) {
+            log.warn("Upload rejected: empty file for lessonId={}", lessonId);
             throw new PakStanislavBadRequestException("File must not be empty");
         }
 
@@ -58,19 +62,23 @@ public class PakStanislavLessonFileServiceImpl implements PakStanislavLessonFile
             Files.createDirectories(uploadPath);
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
+            log.error("Upload failed for lessonId={} reason={}", lessonId, ex.getMessage());
             throw new PakStanislavBadRequestException("Failed to upload lesson file");
         }
 
         lesson.setAttachmentPath(storedFileName);
         PakStanislavLesson updatedLesson = lessonRepository.save(lesson);
+        log.info("Upload successful for lessonId={} storedFile={}", lessonId, storedFileName);
         return lessonMapper.toDto(updatedLesson);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Resource downloadLessonFile(Long lessonId) {
+        log.info("Download file request for lessonId={}", lessonId);
         PakStanislavLesson lesson = findLessonById(lessonId);
         if (lesson.getAttachmentPath() == null || lesson.getAttachmentPath().isBlank()) {
+            log.warn("Download rejected: no attachment for lessonId={}", lessonId);
             throw new PakStanislavResourceNotFoundException("No attachment found for lesson id: " + lessonId);
         }
 
@@ -78,10 +86,13 @@ public class PakStanislavLessonFileServiceImpl implements PakStanislavLessonFile
         try {
             Resource resource = new UrlResource(filePath.toUri());
             if (!resource.exists() || !resource.isReadable()) {
+                log.warn("Download failed: file not found for lessonId={} file={}", lessonId, lesson.getAttachmentPath());
                 throw new PakStanislavResourceNotFoundException("Lesson file not found");
             }
+            log.info("Download successful for lessonId={} file={}", lessonId, lesson.getAttachmentPath());
             return resource;
         } catch (MalformedURLException ex) {
+            log.error("Download failed: invalid path for lessonId={} reason={}", lessonId, ex.getMessage());
             throw new PakStanislavBadRequestException("Invalid file path");
         }
     }
