@@ -1,6 +1,9 @@
 package com.example.finalproject.controller;
 
 import com.example.finalproject.dto.PakStanislavCourseAnalyticsDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.example.finalproject.service.PakStanislavCourseAsyncService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +19,15 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 @RequestMapping("/api/courses/{courseId}/async")
 @RequiredArgsConstructor
+@Tag(name = "Course Async", description = "Asynchronous course analytics operations")
 public class PakStanislavCourseAsyncController {
 
     private final PakStanislavCourseAsyncService courseAsyncService;
 
     @GetMapping("/recalculate-rating")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+    @Operation(summary = "Recalculate course average rating asynchronously")
+    @ApiResponse(responseCode = "200", description = "Rating recalculated")
     public CompletableFuture<ResponseEntity<Map<String, Object>>> recalculateRating(
             @PathVariable Long courseId
     ) {
@@ -34,6 +40,8 @@ public class PakStanislavCourseAsyncController {
 
     @GetMapping("/active-enrollments")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+    @Operation(summary = "Count active enrollments asynchronously")
+    @ApiResponse(responseCode = "200", description = "Active enrollments calculated")
     public CompletableFuture<ResponseEntity<Map<String, Object>>> activeEnrollments(
             @PathVariable Long courseId
     ) {
@@ -46,6 +54,8 @@ public class PakStanislavCourseAsyncController {
 
     @GetMapping("/analytics")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+    @Operation(summary = "Build complete async analytics summary")
+    @ApiResponse(responseCode = "200", description = "Analytics built")
     public CompletableFuture<ResponseEntity<PakStanislavCourseAnalyticsDto>> analytics(
             @PathVariable Long courseId
     ) {
