@@ -1,6 +1,7 @@
 package com.example.finalproject.repository;
 
 import com.example.finalproject.entity.PakStanislavEnrollment;
+import com.example.finalproject.entity.PakStanislavEnrollmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -13,4 +14,6 @@ public interface PakStanislavEnrollmentRepository extends JpaRepository<PakStani
     List<PakStanislavEnrollment> findByCourseId(Long courseId);
 
     Optional<PakStanislavEnrollment> findByUserIdAndCourseId(Long userId, Long courseId);
+
+    long countByCourseIdAndStatus(Long courseId, PakStanislavEnrollmentStatus status);
 }

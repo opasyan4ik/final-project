@@ -18,6 +18,8 @@ public class PakStanislavCourseMapper {
                 .durationInHours(course.getDurationInHours())
                 .level(course.getLevel())
                 .published(course.getPublished())
+                .averageRating(course.getAverageRating())
+                .reviewCount(course.getReviewCount())
                 .createdAt(course.getCreatedAt())
                 .updatedAt(course.getUpdatedAt())
                 .categoryId(course.getCategory().getId())

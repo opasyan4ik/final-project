@@ -61,6 +61,14 @@ public class PakStanislavCourse {
     @Column(nullable = false)
     private Boolean published = false;
 
+    @Builder.Default
+    @Column(nullable = false, precision = 3, scale = 2)
+    private BigDecimal averageRating = BigDecimal.ZERO;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer reviewCount = 0;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

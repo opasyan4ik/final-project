@@ -18,6 +18,8 @@ public class PakStanislavCourseDto {
     private Integer durationInHours;
     private PakStanislavCourseLevel level;
     private Boolean published;
+    private BigDecimal averageRating;
+    private Integer reviewCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long categoryId;
