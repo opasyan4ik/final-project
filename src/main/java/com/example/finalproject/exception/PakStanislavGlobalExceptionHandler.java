@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -94,6 +95,19 @@ public class PakStanislavGlobalExceptionHandler {
                 "Data integrity violation",
                 request.getRequestURI(),
                 List.of(ex.getMostSpecificCause().getMessage())
+        );
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<PakStanislavErrorResponse> handleAuthenticationException(
+            AuthenticationException ex,
+            HttpServletRequest request
+    ) {
+        return buildResponse(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid email or password",
+                request.getRequestURI(),
+                List.of()
         );
     }
 
